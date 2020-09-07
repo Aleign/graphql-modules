@@ -1,8 +1,7 @@
-import { createModule, gql } from 'graphql-modules';
+import { GraphQLModule } from '@graphql-modules/core';
+import gql from 'graphql-tag';
 
-export const UserModule = createModule({
-  id: 'user',
-  dirname: __dirname,
+export const UserModule = new GraphQLModule({
   typeDefs: gql`
     type User {
       id: String
@@ -11,8 +10,8 @@ export const UserModule = createModule({
   `,
   resolvers: {
     User: {
-      id: (user: any) => user._id,
-      username: (user: any) => user.username,
+      id: user => user._id,
+      username: user => user.username,
     },
   },
 });

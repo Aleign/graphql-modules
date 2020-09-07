@@ -1,6 +1,6 @@
 export default {
   User: {
-    id: (user: any) => user._id,
-    username: (user: any) => user.username,
+    id: user => user._id,
+    username: user => user.username,
   },
 };

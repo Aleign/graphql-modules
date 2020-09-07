@@ -1,14 +1,15 @@
 import 'reflect-metadata';
-import express from 'express';
+import * as express from 'express';
 import { createServer } from 'http';
 import { ApolloServer } from 'apollo-server-express';
-import { graphqlApplication } from './app';
+import { AppModule } from './app/app.module';
 
-const { createSchemaForApollo } = graphqlApplication;
-const schema = createSchemaForApollo();
+const { schema, subscriptions } = AppModule;
 
 const server = new ApolloServer({
   schema,
+  context: session => session,
+  subscriptions
 });
 
 const app = express();
@@ -21,7 +22,5 @@ httpServer.listen({ port: 4000 }, () => {
   // tslint:disable-next-line: no-console
   console.info(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
   // tslint:disable-next-line: no-console
-  console.info(
-    `🚀 Subsciription ready at ws://localhost:4000${server.subscriptionsPath}`
-  );
+  console.info(`🚀 Subsciription ready at ws://localhost:4000${server.subscriptionsPath}`);
 });

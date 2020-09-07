@@ -1,15 +1,15 @@
-import { createModule, gql } from 'graphql-modules';
-import { Blog } from './providers/blog';
+import {GraphQLModule} from '@graphql-modules/core';
+import {Blog} from './providers/blog';
+import gql from 'graphql-tag';
 import resolvers from './resolvers';
-import { Users } from '../user/providers/users';
+import { UserModule } from '@modules/user';
 
-export const BlogModule = createModule({
-  id: 'blog',
-  dirname: __dirname,
-  providers: [Blog, Users],
+export const BlogModule = new GraphQLModule({
+  imports: [UserModule],
+  providers: [Blog],
   resolvers,
   typeDefs: gql`
-    extend type Query {
+    type Query {
       posts: [Post]
     }
 
@@ -19,7 +19,7 @@ export const BlogModule = createModule({
       author: User
     }
 
-    extend type User {
+    type User {
       posts: [Post]
     }
   `,

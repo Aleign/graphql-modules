@@ -1,49 +1,36 @@
-import {
-  createModule,
-  gql,
-  InjectionToken,
-  Scope,
-  CONTEXT,
-} from 'graphql-modules';
+import { GraphQLModule } from '@graphql-modules/core';
+import { Request } from 'express';
+import gql from 'graphql-tag';
+import { UserModule } from '../user/user.module';
 
-interface AuthenticatedUser {
-  _id: number;
-  username: string;
-}
-const AuthenticatedUser = new InjectionToken<AuthenticatedUser>(
-  'authenticated-user'
-);
-
-export const AuthModule = createModule({
-  id: 'auth',
-  dirname: __dirname,
+export const AuthModule = new GraphQLModule({
   typeDefs: gql`
     type Query {
       me: User
     }
+
+    type User {
+      id: String
+    }
   `,
   resolvers: {
+    User: {
+      id: user => user._id,
+    },
     Query: {
-      me(_root: {}, _args: {}, context: GraphQLModules.Context) {
-        return context.injector.get(AuthenticatedUser);
-      },
+      me: (root, args, context) => context.authenticatedUser,
     },
   },
-  providers: [
-    {
-      provide: AuthenticatedUser,
-      scope: Scope.Operation,
-      deps: [CONTEXT],
-      useFactory(ctx: GraphQLModules.GlobalContext) {
-        const authHeader = ctx.request.headers.authorization;
-
-        console.log({ authHeader });
-
-        return {
-          _id: 1,
-          username: 'me',
-        };
-      },
-    },
+  imports: [
+    UserModule,
   ],
+  context: async (session: Request) => {
+    const authHeader = session.headers.authorization;
+    return {
+      authenticatedUser: {
+        _id: 1,
+        username: 'me',
+      },
+    };
+  },
 });
